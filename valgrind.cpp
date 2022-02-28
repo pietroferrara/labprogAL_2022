@@ -1,9 +1,10 @@
 #include <iostream>
 
-int main(int argc, char *argv[])
+using namespace std;
+
+int main()
 {
-    int value;
-    std::cin >> value;
-    std::cout << 10 / value << std::endl;
-    return 0;
+    int x;
+    int y = x * 7;
+    cout << y << endl;
 }
