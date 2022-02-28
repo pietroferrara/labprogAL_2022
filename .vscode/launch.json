@@ -63,7 +63,7 @@
             "name": "make - Build and debug hello.cpp",
             "type": "cppdbg",
             "request": "launch",
-            "program": "C:\\Users\\PietroFerrara\\labprog2122\\debug_executable.exe",
+            "program": "C:\\Users\\PietroFerrara\\labprog22_git\\labprogAL_2022\\debug_executable.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
