@@ -4,7 +4,9 @@ using namespace std;
 
 int main()
 {
-    int x;
-    int y = x * 7;
-    cout << y << endl;
+    int *a = new int[10];
+    for (int i = 0; i < 10; i++)
+        a[i] = 1;
+    delete[] a;
+    cout << a[5] << endl;
 }
