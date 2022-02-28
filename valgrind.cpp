@@ -5,7 +5,10 @@ using namespace std;
 int main()
 {
     int *a = new int[10];
-    cout << a[-1] << endl;
-    cout << a[10] << endl;
+    int i;
+    for (int j = 0; j < 10; j++)
+        a[j] = j;
+    cin >> i;
+    cout << a[i] << endl;
     delete[] a;
 }
