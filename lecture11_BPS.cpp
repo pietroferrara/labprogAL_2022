@@ -19,7 +19,7 @@ int T()
     cin >> c;
     if (c != ')')
         throw wrong_expression();
-    return result;
+    return result + 1;
 }
 
 int S()
@@ -32,9 +32,9 @@ int S()
         int h1 = T();
         int h2 = S();
         if (h1 > h2)
-            return h1 + 1;
+            return h1;
         else
-            return h2 + 1;
+            return h2;
     }
     else
         return 0;
@@ -43,6 +43,6 @@ int S()
 int main()
 {
     std::cout << "Type a BPS expression" << std::endl;
-    int height = T();
+    int height = T() - 1;
     std::cout << "The height of the given expression is " << height;
 }
