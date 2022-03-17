@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -40,6 +41,14 @@ for (int i = 0; i < str.length(); i++)
 return str.length();
 }*/
 
+struct Token
+{
+    bool isNumber;
+    double value;
+};
+
+vector<Token> tok;
+
 double performOperation(char op, double left, double right)
 {
     switch (op)
@@ -57,20 +66,94 @@ double performOperation(char op, double left, double right)
     }
 }
 
-double compute_result_of_expression(istream &input)
+void tokenize(istream &input)
 {
     char op;
-    double leftNumber,
-        rightNumber;
-    cin >> leftNumber;
-    cin >> op;
+    double number;
+    tok = vector<Token>(0);
+    cin >> number >> op;
     while (op != '=')
     {
-        cin >> rightNumber;
-        leftNumber = performOperation(op, leftNumber, rightNumber);
-        cin >> op;
+        tok.push_back(Token{true, number});
+        tok.push_back(Token{false, (double)op});
+        cin >> number >> op;
     }
-    return leftNumber;
+    tok.push_back(Token{true, number});
+}
+
+Token get_token()
+{
+    Token result = tok.at(0);
+    tok.erase(tok.begin());
+    return result;
+}
+
+void put_token_back(Token t)
+{
+    tok.insert(tok.begin(), t);
+}
+
+double term();
+double primary();
+
+double expression()
+{
+    double left = term();
+    if (tok.size() == 0)
+        return left;
+    Token t = get_token();
+    if (t.isNumber)
+        throw expression_not_supported();
+    double right;
+    switch ((char)t.value)
+    {
+    case '+':
+        right = expression();
+        return left + right;
+    case '-':
+        right = expression();
+        return left - right;
+    default:
+        put_token_back(t);
+        return left;
+    }
+}
+
+double term()
+{
+    double left = primary();
+    if (tok.size() == 0)
+        return left;
+    Token t = get_token();
+    if (t.isNumber)
+        throw expression_not_supported();
+    double right;
+    switch ((char)t.value)
+    {
+    case '*':
+        right = term();
+        return left * right;
+    case '/':
+        right = term();
+        return left / right;
+    default:
+        put_token_back(t);
+        return left;
+    }
+}
+
+double primary()
+{
+    Token t = get_token();
+    if (!t.isNumber)
+        throw expression_not_supported();
+    else
+        return t.value;
+}
+
+double compute_result_of_expression()
+{
+    return expression();
 }
 
 int main()
@@ -83,7 +166,8 @@ int main()
         cout << "Please type an expression:" << endl;
         try
         {
-            result = compute_result_of_expression(cin);
+            tokenize(cin);
+            result = compute_result_of_expression();
             correct_expression = true;
         }
         catch (expression_not_supported)
