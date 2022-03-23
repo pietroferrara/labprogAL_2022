@@ -105,17 +105,28 @@ double expression()
     if (t.isNumber)
         throw expression_not_supported();
     double right;
-    switch ((char)t.value)
+    while (true)
     {
-    case '+':
-        right = expression();
-        return left + right;
-    case '-':
-        right = expression();
-        return left - right;
-    default:
-        put_token_back(t);
-        return left;
+        switch ((char)t.value)
+        {
+        case '+':
+            right = term();
+            left = left + right;
+            if (tok.empty())
+                return left;
+            t = get_token();
+            break;
+        case '-':
+            right = term();
+            left = left - right;
+            if (tok.empty())
+                return left;
+            t = get_token();
+            break;
+        default:
+            put_token_back(t);
+            return left;
+        }
     }
 }
 
@@ -128,17 +139,28 @@ double term()
     if (t.isNumber)
         throw expression_not_supported();
     double right;
-    switch ((char)t.value)
+    while (true)
     {
-    case '*':
-        right = term();
-        return left * right;
-    case '/':
-        right = term();
-        return left / right;
-    default:
-        put_token_back(t);
-        return left;
+        switch ((char)t.value)
+        {
+        case '*':
+            right = primary();
+            left = left * right;
+            if (tok.empty())
+                return left;
+            t = get_token();
+            break;
+        case '/':
+            right = primary();
+            left = left / right;
+            if (tok.empty())
+                return left;
+            t = get_token();
+            break;
+        default:
+            put_token_back(t);
+            return left;
+        }
     }
 }
 
