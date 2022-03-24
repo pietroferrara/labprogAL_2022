@@ -6,7 +6,14 @@ using namespace std;
 
 struct expression_not_supported
 {
+    string message;
 };
+
+struct expression_malformed
+{
+    string message;
+};
+
 /* Deprecated code
 bool isNotADigit(char a)
 {
@@ -62,24 +69,40 @@ double performOperation(char op, double left, double right)
     case '/':
         return left / right;
     default:
-        throw expression_not_supported();
+        throw expression_not_supported{"Operator " + std::to_string(op) + " is not supported"};
     }
 }
 
 void tokenize(istream &input)
 {
-    char op;
-    double number;
-    tok = vector<Token>(0);
-    cin >> number >> op;
+    double number = 0;
+    char op = 0;
+    cin >> op;
     while (op != '=')
     {
-        tok.push_back(Token{true, number});
-        tok.push_back(Token{false, (double)op});
-        cin >> number >> op;
+        if (op >= '0' && op <= '9')
+        {
+            cin.putback(op);
+            cin >> number;
+            tok.push_back(Token{true, number});
+        }
+        else
+            tok.push_back(Token{false, (double)op});
+        cin >> op;
     }
-    tok.push_back(Token{true, number});
 }
+/*char op;
+double number;
+tok = vector<Token>(0);
+cin >> number >> op;
+while (op != '=')
+{
+    tok.push_back(Token{true, number});
+    tok.push_back(Token{false, (double)op});
+    cin >> number >> op;
+}
+tok.push_back(Token{true, number});
+}*/
 
 Token get_token()
 {
@@ -103,7 +126,7 @@ double expression()
         return left;
     Token t = get_token();
     if (t.isNumber)
-        throw expression_not_supported();
+        throw expression_malformed{"Found number " + std::to_string(t.value) + " when instead an operator was expected"};
     double right;
     while (true)
     {
@@ -137,7 +160,7 @@ double term()
         return left;
     Token t = get_token();
     if (t.isNumber)
-        throw expression_not_supported();
+        throw expression_malformed{"Found number " + std::to_string(t.value) + " when instead an operator was expected"};
     double right;
     while (true)
     {
@@ -168,7 +191,17 @@ double primary()
 {
     Token t = get_token();
     if (!t.isNumber)
-        throw expression_not_supported();
+    {
+        if ((char)t.value != '(')
+            throw expression_malformed{"Found operator " + std::to_string((char)t.value) + " when instead a number or an open paranthesis was expected"};
+        double value = expression();
+        if (tok.size() == 0)
+            throw expression_malformed{"Missing a close parenthesis"};
+        t = get_token();
+        if (t.isNumber || (char)t.value != ')')
+            throw expression_malformed{"Found number or other operator when instead a close parenthesis was expected"};
+        return value;
+    }
     else
         return t.value;
 }
@@ -192,9 +225,15 @@ int main()
             result = compute_result_of_expression();
             correct_expression = true;
         }
-        catch (expression_not_supported)
+        catch (expression_not_supported e)
+        {
+            cout << "You typed an operator that is not supported, please try again" << endl;
+            cout << "Detailed error: " << e.message << endl;
+        }
+        catch (expression_malformed e)
         {
             cout << "The expression you typed in is not correct, please try again" << endl;
+            cout << "Detailed error: " << e.message << endl;
         }
     }
     cout << "The result is " << result << endl;
