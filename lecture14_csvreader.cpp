@@ -108,9 +108,9 @@ public:
     {
         vector<string> column_names = projected_columns;
         vector<data_types> column_types = project_column_types(projected_columns);
-        vector<vector<Date>> date_data;
-        vector<vector<int>> number_data;
-        vector<vector<string>> string_data;
+        vector<vector<Date>> date_data = project_date_columns(projected_columns);
+        vector<vector<int>> number_data = project_number_columns(projected_columns);
+        vector<vector<string>> string_data = project_string_columns(projected_columns);
         return Table{column_names, column_types, date_data, number_data, string_data};
     }
 
@@ -128,6 +128,52 @@ private:
         this->date_data = dd;
         this->number_data = nd;
         this->string_data = sd;
+    }
+
+    vector<vector<Date>> project_date_columns(vector<string> column_names)
+    {
+        vector<vector<Date>> result;
+        for (string name : column_names)
+            if (column_types.at(get_index_of_column_name(name)) == date)
+                result.push_back(this->date_data.at(get_index_of_date_column(name)));
+        return result;
+    }
+    vector<vector<int>> project_number_columns(vector<string> column_names)
+    {
+        vector<vector<int>> result;
+        for (string name : column_names)
+            if (column_types.at(get_index_of_column_name(name)) == number)
+                result.push_back(this->number_data.at(get_index_of_number_column(name)));
+        return result;
+    }
+    vector<vector<string>> project_string_columns(vector<string> column_names)
+    {
+        vector<vector<string>> result;
+        for (string name : column_names)
+            if (column_types.at(get_index_of_column_name(name)) == string_type)
+                result.push_back(this->string_data.at(get_index_of_string_column(name)));
+        return result;
+    }
+    int get_index_of_date_column(string name)
+    {
+        return get_index_of_type_column(name, date);
+    }
+    int get_index_of_number_column(string name)
+    {
+        return get_index_of_type_column(name, number);
+    }
+    int get_index_of_string_column(string name)
+    {
+        return get_index_of_type_column(name, string_type);
+    }
+    int get_index_of_type_column(string name, data_types typ)
+    {
+        int index = get_index_of_column_name(name);
+        int result = 0;
+        for (int i = 0; i < index; i++)
+            if (this->column_types.at(i) == typ)
+                result++;
+        return result;
     }
 
     vector<data_types> project_column_types(vector<string> column_names)
