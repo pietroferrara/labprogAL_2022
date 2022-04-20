@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -175,6 +176,39 @@ public:
         output.close();
         if (output.fail())
             throw file_error{"Impossible to close file " + file_name};
+    }
+
+    // This method expects that only one column with string values and all the others must be numbers
+    Table summarize()
+    {
+        if (this->string_data.size() != 1)
+            throw query_error{"Cannot summarize a table with " + to_string(this->string_data.size()) + " columns with string values"};
+        if (this->date_data.size() != 0)
+            throw query_error{"Cannot summarize a table with date values"};
+        vector<string> column_names = this->column_names;
+        vector<data_types> column_types = this->column_types;
+        vector<vector<Date>> date_data{0};
+        vector<vector<int>> number_data{this->number_data.size()};
+        vector<vector<string>> string_data{1};
+
+        for (int string_key = 0; string_key < this->string_data.at(0).size(); string_key++)
+        {
+            string string_identifier = this->string_data.at(0).at(string_key);
+            auto lookup = std::find(string_data.at(0).begin(), string_data.at(0).end(), string_identifier);
+            if (lookup != string_data.at(0).end())
+            {
+                int index = lookup - string_data.at(0).begin();
+                for (int j = 0; j < number_data.size(); j++)
+                    number_data.at(j).at(index) += this->number_data.at(j).at(string_key);
+            }
+            else
+            {
+                string_data.at(0).push_back(string_identifier);
+                for (int j = 0; j < number_data.size(); j++)
+                    number_data.at(j).push_back(this->number_data.at(j).at(string_key));
+            }
+        }
+        return Table{column_names, column_types, date_data, number_data, string_data};
     }
 
 private:
@@ -399,12 +433,13 @@ int main()
 {
     Table t{"somministrazioni-vaccini-summary-latest.csv"};
     vector<string> project_columns;
-    project_columns.push_back("data_somministrazione");
     project_columns.push_back("nome_area");
     project_columns.push_back("totale");
-    project_columns.push_back("sesso_maschile");
-    project_columns.push_back("sesso_femminile");
+    project_columns.push_back("prima_dose");
+    project_columns.push_back("seconda_dose");
+    project_columns.push_back("dose_addizionale_booster");
     Table result = t.project(project_columns);
+    result = result.summarize();
     result.write_to_file("projected-table.csv");
     return 0;
 }
