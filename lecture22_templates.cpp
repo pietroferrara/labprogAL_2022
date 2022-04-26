@@ -3,6 +3,10 @@
 
 using namespace std;
 
+class Pippo
+{
+};
+
 template <typename T>
 class Wrapper
 {
@@ -22,26 +26,38 @@ public:
         this->value = v;
     }
 
+    Wrapper<T> operator+(const Wrapper<T> &value) const
+    {
+        Wrapper<T> result = Wrapper<T>{this->value + value.value};
+        return result;
+    }
+
 private:
     T value;
 };
 
+template <typename T1>
+T1 increment(T1 value)
+{
+    return value + 1.0;
+}
+
 int main()
 {
-    Wrapper<string> string_wrapper{"pippo"};
-    cout << string_wrapper.get() << endl;
-    Wrapper<int> int_wrapper{10};
-    cout << int_wrapper.get() << endl;
-    Wrapper<int> int2_wrapper{20};
+    Wrapper<int> int_wrapper{10}, int_wrapper2{20};
+    Wrapper<int> result = int_wrapper + int_wrapper2;
+    cout << result.get() << endl;
+    Pippo pippo{}, pippo2{};
 
-    float a = 30.5;
-    int2_wrapper.set(a);
-    Wrapper<float> float_wrapper{20.0};
-    int i = 1;
-    float_wrapper.set(i);
+    Wrapper<Pippo> pippo_wrapper{pippo}, pippo2_wrapper{pippo2};
+    // Wrapper<Pippo> pipporesult = pippo_wrapper + pippo2_wrapper;
+    cout << "I'm fine" << endl;
 
-    float_wrapper = int2_wrapper;
+    int i = 10;
+    i = increment(i);
+    cout << i << endl;
 
-    cout << int_wrapper.get() << endl;
-    cout << int2_wrapper.get() << endl;
+    string s = "pippo";
+    s = increment(s);
+    cout << s << endl;
 }
