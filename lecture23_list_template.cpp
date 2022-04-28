@@ -162,16 +162,6 @@ public:
         }
     }
 
-    List &operator=(const List &x)
-    {
-        if (this != &x)
-        {
-            destroy(head);
-            head = copy(x.head);
-        }
-        return *this;
-    }
-
     List operator+(const List &x) const
     {
         List supp(*this);
@@ -330,17 +320,78 @@ public:
             }
         }
     }
+
+    void pop()
+    {
+        if (!this->empty())
+        {
+            Cell *temp = this->head;
+            this->head = this->head->next;
+            delete temp;
+        }
+    }
+
+    bool empty()
+    {
+        return this->head == nullptr;
+    }
+
+    List<T> &operator=(List<T> &right)
+    {
+        if (this != &right)
+        {
+            while (!this->empty())
+                this->pop();
+            for (T el : right)
+                this->append(el);
+        }
+        return *this;
+    }
+
+    List<T> &operator=(List<T> &&right)
+    {
+        if (this != &right)
+        {
+            while (!this->empty())
+                this->pop();
+            this->head = right.head;
+            right.head = nullptr;
+        }
+        return *this;
+    }
+
+    List(List<T> &&s) : head(s.head)
+    {
+        // this->head = s.head;
+        s.head = nullptr;
+    }
 };
+
+List<std::string> foo()
+{
+    List<std::string> l1;
+    std::string s1 = "pippo", s2 = "pluto";
+    l1.append(s1);
+    l1.append(s2);
+    return l1;
+}
+
+template <typename T>
+std::ostream &operator<<(std::ostream &lhs, List<T> &rhs)
+{
+    for (T el : rhs)
+        lhs << el << ",";
+    return lhs;
+}
 
 int main()
 {
-    List<std::string> l;
-    std::string s1 = "pippo", s2 = "pluto";
-    l.append(s1);
-    l.append(s2);
-    for (std::string s : l)
-    {
-        std::cout << s << std ::endl;
-    }
+    List<std::string> l1 = foo();
+    List<std::string> l2;
+    std::string s3 = "paperino", s4 = "qui  quo qua";
+    l2.append(s3);
+    l2.append(s4);
+    l1 = l2;
+    std::cout << l1 << std::endl;
     return 0;
 }
