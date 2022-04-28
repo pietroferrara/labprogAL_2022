@@ -53,9 +53,28 @@ public:
             return &(this->ptr);
         }
 
-    private:
+        bool operator==(const iterator &rhs) const
+        {
+            return this->ptr == rhs->ptr;
+        }
+
+        bool operator!=(const iterator &rhs) const
+        {
+            return this->ptr != rhs.ptr;
+        }
+
         Cell *ptr;
     };
+
+    iterator begin()
+    {
+        return iterator{this->head};
+    }
+
+    iterator end()
+    {
+        return iterator{nullptr};
+    }
 
     List()
     {
@@ -319,10 +338,9 @@ int main()
     std::string s1 = "pippo", s2 = "pluto";
     l.append(s1);
     l.append(s2);
-    List<int> l1;
-    int i1 = 10, i2 = 20;
-    l1.append(i1);
-    l1.append(i2);
-
+    for (std::string s : l)
+    {
+        std::cout << s << std ::endl;
+    }
     return 0;
 }
